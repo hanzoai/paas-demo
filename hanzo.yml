@@ -1,0 +1,14 @@
+# The app that proves the native PaaS path: git -> in-cluster BuildKit -> GHCR ->
+# operator -> tenant ingress, calling api.hanzo.ai/v1 on every request.
+#
+# Two gates for the two ways it can break. The image build proves the Dockerfile
+# still produces a runnable container; the Dockerfile only COPYs app.py and never
+# runs python, so it cannot see a syntax error in the app — py_compile does.
+images:
+  - name: paas-demo
+    context: .
+    dockerfile: Dockerfile
+    repo: ghcr.io/hanzoai/paas-demo
+test:
+  - name: compile
+    run: python3 -m py_compile app.py && echo "app.py compiles"
